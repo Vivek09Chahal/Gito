@@ -13,6 +13,7 @@ struct homeViewNavGrid: View {
 
     @Environment(\.modelContext) private var modelContext
     var notes: [NotesModel]
+    var screenSize: CGSize
 
     var body: some View {
         if !notes.isEmpty {
@@ -22,7 +23,7 @@ struct homeViewNavGrid: View {
                         NavigationLink {
                             NotesPageView(note: note)
                         } label: {
-                            NoteCardView(isHorizontalScroll: true, note: note)
+                            NoteCardView(isHorizontalScroll: true, note: note, screenSize: screenSize)
                                 .contextMenu {
                                     Button(role: .destructive) {
                                         modelContext.delete(note)
@@ -31,7 +32,6 @@ struct homeViewNavGrid: View {
                                     }
                                 }
                         }
-
                     }
                 }
                 .padding(.horizontal)

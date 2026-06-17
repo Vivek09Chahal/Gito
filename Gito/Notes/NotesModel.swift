@@ -14,24 +14,21 @@ final class NotesModel {
     var id: UUID
     var bgImage: bgImage?
     var noteTitle: String
-    var noteCreate: Date
     var noteContent: String
     var noteTypeCase: noteTypes
     var isImportant: Bool
     var contentSize: CGFloat
     var notePageColor: pageColors
-    var lastEdited: Date?
+    var lastEdited: Date
     var imageItems: [NoteImageItem]
 
     init(id: UUID = .init(),
-         bgImage: bgImage? = nil, noteTitle: String,
-         noteCreate: Date, noteTypeCase: noteTypes,
+         bgImage: bgImage? = nil, noteTitle: String, noteTypeCase: noteTypes,
          noteContent: String, isImportant: Bool, notePageColor: pageColors,
-         contentSize: CGFloat, lastEdited: Date? = Date.now, imageItems: [NoteImageItem] = []) {
+         contentSize: CGFloat, lastEdited: Date = Date.now, imageItems: [NoteImageItem] = []) {
         self.id = id
         self.bgImage = bgImage
         self.noteTitle = noteTitle
-        self.noteCreate = noteCreate
         self.noteTypeCase = noteTypeCase
         self.noteContent = noteContent
         self.isImportant = isImportant

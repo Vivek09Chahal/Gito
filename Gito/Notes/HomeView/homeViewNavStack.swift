@@ -12,6 +12,7 @@ struct homeViewNavStack: View {
 
     @Environment(\.modelContext) private var modelContext
     var notes: [NotesModel]
+    var screenSize: CGSize
 
     var body: some View {
         LazyVStack(spacing: 16) {
@@ -19,7 +20,7 @@ struct homeViewNavStack: View {
                 NavigationLink {
                     NotesPageView(note: note)
                 } label: {
-                    NoteCardView(note: note)
+                    NoteCardView(note: note, screenSize: screenSize)
                         .contextMenu {
                             Button(role: .destructive) {
                                 modelContext.delete(note)

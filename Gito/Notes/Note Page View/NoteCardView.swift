@@ -5,55 +5,60 @@
 //  Created by Vivek Chahal on 6/15/26.
 //
 
-
 import SwiftUI
 import SwiftData
 
 struct NoteCardView: View {
+
     var isHorizontalScroll: Bool = false
     let note: NotesModel
+    var screenSize: CGSize
+
+    var cardHeight: CGFloat {
+        isHorizontalScroll ? screenSize.height * 0.37 : screenSize.height * 0.20
+    }
+
+    var cardWidth: CGFloat {
+        isHorizontalScroll ? screenSize.width * 0.58 : screenSize.width
+    }
 
     var body: some View {
-        GeometryReader { geo in
-            let cardWidth: CGFloat = isHorizontalScroll
-                ? (3.0 / 5.0 * geo.size.width)
-                : geo.size.width
-
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(note.noteTypeCase.rawValue.capitalized)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(8)
-                    Spacer()
-                }
-
-                Text(note.noteTitle)
-                    .font(.headline)
-                    .fontDesign(.rounded)
-                    .lineLimit(1)
-
-                Text(note.noteContent)
-                    .font(.system(size: note.contentSize))
-                    .lineLimit(isHorizontalScroll ? 6 : 4)
-                    .multilineTextAlignment(.leading)
-
-                Spacer(minLength: 0)
-
-                Text(note.noteCreate, style: .date)
-                    .font(.caption2)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(note.noteTypeCase.rawValue.capitalized)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(8)
+                Spacer()
             }
-            .foregroundColor(hasBackgroundImage ? .white : .primary)
-            .padding()
-            .frame(width: cardWidth, height: isHorizontalScroll ? 270 : 170, alignment: .leading)
-            .background(cardBackground)
-            .cornerRadius(24)
-            .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 3)
+
+            Text(note.noteTitle)
+                .font(.headline)
+                .fontDesign(.rounded)
+                .lineLimit(1)
+
+            Text(note.noteContent)
+                .font(.system(size: note.contentSize))
+                .lineLimit(isHorizontalScroll ? 6 : 4)
+                .multilineTextAlignment(.leading)
+
+            Spacer(minLength: 0)
+
+            Text(note.lastEdited, style: .date)
+                .font(.caption2)
         }
-        .frame(height: isHorizontalScroll ? 270 : 170)
+        .padding()
+        .foregroundColor(hasBackgroundImage ? .white : .primary)
+        .frame(width: isHorizontalScroll ? cardWidth : nil, height: cardHeight, alignment: .leading)
+        .frame(maxWidth: isHorizontalScroll ? cardWidth : .infinity, alignment: .leading)
+        .background(
+            cardBackground
+                .cornerRadius(24)
+        )
+        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 3)
     }
 
     // MARK: - Helper Computed Properties
@@ -68,6 +73,7 @@ struct NoteCardView: View {
             Image(imageName)
                 .resizable()
                 .scaledToFill()
+                .frame(width: isHorizontalScroll ? cardWidth : screenSize.width - 32, height: cardHeight)
                 .overlay(Color.black.opacity(0.2))
         } else {
             note.notePageColor.pageColor

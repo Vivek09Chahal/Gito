@@ -20,48 +20,49 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        if notes.isEmpty && importantNotes.isEmpty {
-                            EmptyStateView()
-                        } else {
-                            homeViewNavGrid(notes: importantNotes)
-                            homeViewNavStack(notes: notes)
+            GeometryReader { geo in
+                ZStack(alignment: .bottomTrailing) {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            if notes.isEmpty && importantNotes.isEmpty {
+                                EmptyStateView()
+                            } else {
+                                homeViewNavGrid(notes: importantNotes, screenSize: geo.size)
+                                homeViewNavStack(notes: notes, screenSize: geo.size)
+                            }
                         }
                     }
-                }
 
-                // Clean FAB Floating Layout using logical standard frames
-                Button {
-                    navigateToNewNote = true
-                } label: {
-                    Image(systemName: "pencil.and.scribble")
-                        .font(.title2)
-                        .bold()
-                        .frame(width: 60, height: 60)
-                        .foregroundStyle(.linearGradient(colors: [.indigo, .pink], startPoint: .top, endPoint: .bottom))
-                        .background(Color(.systemBackground))
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
-                        .overlay(
-                            Circle()
-                                .stroke(.linearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .top, endPoint: .bottom), lineWidth: 1)
-                        )
+                    // Clean FAB Floating Layout using logical standard frames
+                    Button {
+                        navigateToNewNote = true
+                    } label: {
+                        Image(systemName: "pencil.and.scribble")
+                            .font(.title2)
+                            .bold()
+                            .frame(width: 60, height: 60)
+                            .foregroundStyle(.linearGradient(colors: [.indigo, .pink], startPoint: .top, endPoint: .bottom))
+                            .background(Color(.systemBackground))
+                            .clipShape(Circle())
+                            .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+                            .overlay(
+                                Circle()
+                                    .stroke(.linearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .top, endPoint: .bottom), lineWidth: 1)
+                            )
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 20)
                 }
-                .padding(.trailing, 20)
-                .padding(.bottom, 20)
-            }
-            .preferredColorScheme(.dark)
-            .navigationTitle("My Notes")
-            .navigationDestination(isPresented: $navigateToNewNote) {
-                NotesPageView(note: nil)
-                    .id(UUID().uuidString)
+                .preferredColorScheme(.dark)
+                .navigationTitle("My Notes")
+                .navigationDestination(isPresented: $navigateToNewNote) {
+                    NotesPageView(note: nil)
+                        .id(UUID().uuidString)
+                }
             }
         }
     }
 }
-
 #Preview {
     let container: ModelContainer = {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)

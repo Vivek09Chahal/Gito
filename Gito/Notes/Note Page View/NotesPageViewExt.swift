@@ -33,7 +33,6 @@ extension NotesPageView {
             // Insert new note
             let newNote = NotesModel(
                 noteTitle: title,
-                noteCreate: .now,
                 noteTypeCase: .note,
                 noteContent: context,
                 isImportant: isImportant,
