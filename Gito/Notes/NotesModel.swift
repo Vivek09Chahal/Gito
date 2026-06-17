@@ -101,3 +101,20 @@ extension bgImage {
         }
     }
 }
+
+enum NoteImageType: Codable {
+    case photo
+    case drawing
+}
+
+struct NoteImageItem: Codable, Equatable {
+    var id = UUID()
+    var jpegData: Data
+    var rawDrawingData: Data?
+    var type: NoteImageType
+}
+
+struct DrawingEditTarget: Identifiable {
+    let id = UUID()
+    let index: Int
+}

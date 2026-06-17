@@ -24,7 +24,7 @@ struct OnboardPageView: View {
                 VStack(alignment: .leading) {
                     VStack {
                         Text(page.heading)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                             .font(.largeTitle)
                             .fontWeight(.medium)
                             .fontDesign(.rounded)

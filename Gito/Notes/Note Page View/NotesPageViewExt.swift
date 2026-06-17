@@ -14,7 +14,7 @@ extension NotesPageView {
     func saveNote() {
         // Avoid saving if both title and context are empty
         guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-              !context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                !context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !imageItems.isEmpty else {
             return
         }
 
@@ -74,24 +74,21 @@ extension NotesPageView {
     func handelOptionsAction(_ action: NoteOptionActions) {
         switch action {
         case .addImage:
-            presentOptionSheet = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 presentPhotosPicker = true
             }
 
         case .takePhoto:
-            presentOptionSheet = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.presentCamera = true
                 // saveNote() removed — note is saved inside the camera capture callback
             }
 
         case .draw:
-            presentOptionSheet = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                editingDrawingIndex = nil
-                presentDrawing = true
-            }
+            // Create a new blank slot placeholder at the end of the array
+            let placeholder = NoteImageItem(jpegData: Data(), rawDrawingData: nil, type: .drawing)
+            imageItems.append(placeholder)
+            drawingEditTarget = DrawingEditTarget(index: imageItems.count - 1)
         }
     }
 }

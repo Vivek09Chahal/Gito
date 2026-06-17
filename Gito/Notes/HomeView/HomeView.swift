@@ -9,6 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
+    // 1. Gain direct access to the database context container
+    @Environment(\.modelContext) private var modelContext
+
     @Query(filter: #Predicate<NotesModel> { !$0.isImportant }, sort: [SortDescriptor(\.lastEdited, order: .reverse)])
     private var notes: [NotesModel]
 
@@ -16,7 +19,7 @@ struct HomeView: View {
     private var importantNotes: [NotesModel]
 
     @State private var showMenu = false
-    @State private var navigateToNewNote = false
+    @State private var activeNewNote: NotesModel? = nil
 
     var body: some View {
         NavigationStack {
@@ -33,9 +36,24 @@ struct HomeView: View {
                         }
                     }
 
-                    // Clean FAB Floating Layout using logical standard frames
+                    // Floating Action Button (FAB)
                     Button {
-                        navigateToNewNote = true
+                        let newNote = NotesModel(
+                            bgImage: nil,
+                            noteTitle: "",
+                            noteTypeCase: .today,
+                            noteContent: "",
+                            isImportant: false,
+                            notePageColor: .defaultColor,
+                            contentSize: 20,
+                            imageItems: []
+                        )
+
+                        // 2. Insert into SwiftData context immediately before pushing the view
+                        modelContext.insert(newNote)
+
+                        // 3. Set the active item to trigger dynamic navigation link routing
+                        activeNewNote = newNote
                     } label: {
                         Image(systemName: "pencil.and.scribble")
                             .font(.title2)
@@ -55,14 +73,14 @@ struct HomeView: View {
                 }
                 .preferredColorScheme(.dark)
                 .navigationTitle("My Notes")
-                .navigationDestination(isPresented: $navigateToNewNote) {
-                    NotesPageView(note: nil)
-                        .id(UUID().uuidString)
+                .navigationDestination(item: $activeNewNote) { initializedNote in
+                    NotesPageView(note: initializedNote)
                 }
             }
         }
     }
 }
+
 #Preview {
     let container: ModelContainer = {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -75,6 +93,6 @@ struct HomeView: View {
         return container
     }()
 
-    HomeView()
+    return HomeView()
         .modelContainer(container)
 }

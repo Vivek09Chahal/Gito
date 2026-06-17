@@ -22,10 +22,11 @@ struct DrawingEditorView: View {
         self.existingDrawingData = existingDrawingData
         self.onSave = onSave
 
-        // Loading raw PKDrawing data
         if let data = existingDrawingData,
            let loaded = try? PKDrawing(data: data) {
-            _drawing = State(initialValue: loaded)
+            _drawing = State(wrappedValue: loaded)
+        } else {
+            _drawing = State(wrappedValue: PKDrawing())
         }
     }
 

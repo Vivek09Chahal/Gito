@@ -24,6 +24,11 @@ struct NoteCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+
+//            if !note.imageItems.isEmpty {
+//                ForEach(note.imageItems, id: \.)
+//            }
+
             HStack {
                 Text(note.noteTypeCase.rawValue.capitalized)
                     .font(.caption)

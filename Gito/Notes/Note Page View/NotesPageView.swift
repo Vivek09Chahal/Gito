@@ -43,7 +43,7 @@ struct NotesPageView: View {
 
     // Drawing kit
     @State var presentDrawing: Bool = false
-    @State var editingDrawingIndex: Int? = nil
+    @State var drawingEditTarget: DrawingEditTarget? = nil
     @State var imageItems: [NoteImageItem] = []
     @FocusState var isTextFieldFocused: Bool
 
@@ -80,8 +80,7 @@ struct NotesPageView: View {
                     textSize: $textSize,
                     imageItems: $imageItems,
                     onEditDrawing: { index in
-                        editingDrawingIndex = index
-                        presentDrawing = true
+                        drawingEditTarget = DrawingEditTarget(index: index)
                     }
                 )
 
@@ -158,8 +157,8 @@ struct NotesPageView: View {
                 saveNote()
             }
         }
-        .fullScreenCover(isPresented: $presentDrawing) {
-            drawingEditorContainer
+        .fullScreenCover(item: $drawingEditTarget) { target in
+            drawingEditorSheet(for: target)
         }
     }
 
@@ -177,25 +176,23 @@ struct NotesPageView: View {
         }
     }
 
-    // MARK: - Drawing
+    // MARK: - Extracted Drawing Sheet Builder
     @ViewBuilder
-    private var drawingEditorContainer: some View {
-        let existingRaw: Data? = editingDrawingIndex.flatMap { index in
-            imageItems.indices.contains(index) ? imageItems[index].rawDrawingData : nil
-        }
+    private func drawingEditorSheet(for target: DrawingEditTarget) -> some View {
+        let existingRaw: Data? = imageItems.indices.contains(target.index) ? imageItems[target.index].rawDrawingData : nil
 
         DrawingEditorView(existingDrawingData: existingRaw) { jpegData, rawData in
-            if let index = editingDrawingIndex {
-                imageItems[index].jpegData = jpegData
-                imageItems[index].rawDrawingData = rawData
+            if imageItems.indices.contains(target.index) {
+                imageItems[target.index].jpegData = jpegData
+                imageItems[target.index].rawDrawingData = rawData
             } else {
                 imageItems.append(NoteImageItem(jpegData: jpegData, rawDrawingData: rawData, type: .drawing))
             }
-            editingDrawingIndex = nil
             saveNote()
+            drawingEditTarget = nil
         }
     }
-    
+
     // MARK: - Photo Helper Logic
     private func loadSelectedPhotos(_ items: [PhotosPickerItem]) {
         Task {
