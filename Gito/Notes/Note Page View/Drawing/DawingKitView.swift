@@ -1,5 +1,5 @@
 //
-//  DawingKitView.swift
+//  DrawingKitView.swift
 //  Gito
 //
 //  Created by Vivek Chahal on 6/16/26.
@@ -13,22 +13,9 @@ struct DrawingEditorView: View {
     @Environment(\.displayScale) var displayScale
 
     var existingDrawingData: Data? = nil
-    // Returning both: jpeg for display, raw PKDrawing data for re-editing
     var onSave: (Data, Data) -> Void
 
     @State private var drawing = PKDrawing()
-
-    init(existingDrawingData: Data? = nil, onSave: @escaping (Data, Data) -> Void) {
-        self.existingDrawingData = existingDrawingData
-        self.onSave = onSave
-
-        if let data = existingDrawingData,
-           let loaded = try? PKDrawing(data: data) {
-            _drawing = State(wrappedValue: loaded)
-        } else {
-            _drawing = State(wrappedValue: PKDrawing())
-        }
-    }
 
     var body: some View {
         NavigationStack {
@@ -50,23 +37,29 @@ struct DrawingEditorView: View {
                     }
                 }
                 .background(Color(.systemBackground))
+                .task(id: existingDrawingData) {
+                    if let data = existingDrawingData,
+                       let loadedDrawing = try? PKDrawing(data: data) {
+                        self.drawing = loadedDrawing
+                    }
+                }
         }
     }
 
     private func saveDrawing() {
-        // 1. Raw PKDrawing data — used for re-editing later
         let rawData = drawing.dataRepresentation()
+        let dynamicBounds = drawing.bounds
 
-        // 2. Render to JPEG — used for display in note
-        let bounds = drawing.bounds.isEmpty
-            ? CGRect(x: 0, y: 0, width: 300, height: 300)
-            : drawing.bounds.insetBy(dx: -20, dy: -20)
+        let targetRect: CGRect
+        if dynamicBounds.isEmpty || dynamicBounds.width <= 0 || dynamicBounds.height <= 0 {
+            targetRect = CGRect(x: 0, y: 0, width: 500, height: 500)
+        } else {
+            targetRect = dynamicBounds.insetBy(dx: -24, dy: -24)
+        }
 
-        let image = drawing.image(from: bounds, scale: displayScale)
+        let image = drawing.image(from: targetRect, scale: displayScale)
+        guard let jpegData = image.jpegData(compressionQuality: 0.85) else { return }
 
-        guard let jpegData = image.jpegData(compressionQuality: 0.9) else { return }
-
-        // Pass both back
         onSave(jpegData, rawData)
         dismiss()
     }

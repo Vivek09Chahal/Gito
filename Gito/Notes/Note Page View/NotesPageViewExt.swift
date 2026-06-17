@@ -9,17 +9,17 @@ import Foundation
 import SwiftData
 import SwiftUI
 import PhotosUI
+import PencilKit
 
 extension NotesPageView {
     func saveNote() {
-        // Avoid saving if both title and context are empty
         guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-                !context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !imageItems.isEmpty else {
+                !context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                !imageItems.isEmpty || !drawingItems.isEmpty else {
             return
         }
 
         if let existingNote = note {
-            // Update existing note
             existingNote.noteTitle = title
             existingNote.noteContent = context
             existingNote.contentSize = textSize
@@ -28,9 +28,9 @@ extension NotesPageView {
             existingNote.isImportant = isImportant
             existingNote.lastEdited = .now
             existingNote.imageItems = imageItems
+            existingNote.drawingItems = drawingItems
 
         } else {
-            // Insert new note
             let newNote = NotesModel(
                 noteTitle: title,
                 noteTypeCase: .note,
@@ -39,11 +39,11 @@ extension NotesPageView {
                 notePageColor: colorSelected,
                 contentSize: textSize,
                 lastEdited: .now,
-                imageItems: imageItems
+                imageItems: imageItems,
+                drawingItems: drawingItems
             )
             newNote.bgImage = bgSelected
             notesContext.insert(newNote)
-            // Update the local state to the new note to prevent duplicates on subsequent calls
             self.note = newNote
         }
 
@@ -52,7 +52,6 @@ extension NotesPageView {
 
     func handleMenuAction(_ action: NoteMenuAction) {
         switch action {
-
         case .delete:
             if let existingNote = note {
                 notesContext.delete(existingNote)
@@ -66,7 +65,6 @@ extension NotesPageView {
             presentMenuSheet = false
 
         case .send:
-            // Hook into ShareSheet or your send flow here
             presentMenuSheet = false
         }
     }
@@ -81,14 +79,13 @@ extension NotesPageView {
         case .takePhoto:
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.presentCamera = true
-                // saveNote() removed — note is saved inside the camera capture callback
             }
 
         case .draw:
-            // Create a new blank slot placeholder at the end of the array
-            let placeholder = NoteImageItem(jpegData: Data(), rawDrawingData: nil, type: .drawing)
-            imageItems.append(placeholder)
-            drawingEditTarget = DrawingEditTarget(index: imageItems.count - 1)
+            // Append a new blank sketch placeholder item and present the editor matching its index
+            let newBlankItem = NoteDrawingItem(rawDrawingData: PKDrawing().dataRepresentation())
+            drawingItems.append(newBlankItem)
+            drawingEditTarget = DrawingEditTarget(index: drawingItems.count - 1)
         }
     }
 }

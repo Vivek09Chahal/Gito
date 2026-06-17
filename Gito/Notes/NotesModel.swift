@@ -21,11 +21,14 @@ final class NotesModel {
     var notePageColor: pageColors
     var lastEdited: Date
     var imageItems: [NoteImageItem]
-
+    var drawingItems: [NoteDrawingItem]
+    
     init(id: UUID = .init(),
          bgImage: bgImage? = nil, noteTitle: String, noteTypeCase: noteTypes,
          noteContent: String, isImportant: Bool, notePageColor: pageColors,
-         contentSize: CGFloat, lastEdited: Date = Date.now, imageItems: [NoteImageItem] = []) {
+         contentSize: CGFloat, lastEdited: Date = Date.now,
+         imageItems: [NoteImageItem] = [],
+         drawingItems: [NoteDrawingItem] = []) {
         self.id = id
         self.bgImage = bgImage
         self.noteTitle = noteTitle
@@ -36,6 +39,7 @@ final class NotesModel {
         self.contentSize = contentSize
         self.lastEdited = lastEdited
         self.imageItems = imageItems
+        self.drawingItems = drawingItems
     }
 }
 
@@ -117,4 +121,9 @@ struct NoteImageItem: Codable, Equatable {
 struct DrawingEditTarget: Identifiable {
     let id = UUID()
     let index: Int
+}
+
+struct NoteDrawingItem: Codable, Equatable, Identifiable {
+    var id = UUID()
+    var rawDrawingData: Data
 }
