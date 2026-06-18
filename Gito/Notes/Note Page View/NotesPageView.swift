@@ -1,15 +1,8 @@
 //
-//  NotesPage.swift
+//  NotesPageView.swift
 //  Gito
 //
 //  Created by Vivek Chahal on 6/15/26.
-//
-
-//
-//   NotesPage.swift
-//   Gito
-//
-//   Created by Vivek Chahal on 6/15/26.
 //
 
 import SwiftUI
@@ -41,13 +34,16 @@ struct NotesPageView: View {
     @State var pickerSelections: [PhotosPickerItem] = []
     @State var presentCamera: Bool = false
 
-    // Updated Drawing Kit States
+    // Drawing Kit States
     @State var drawingEditTarget: DrawingEditTarget? = nil
     @State var imageItems: [NoteImageItem] = []
-    @State var drawingItems: [NoteDrawingItem] = [] // <-- Track multiple drawings locally
+    @State var drawingItems: [NoteDrawingItem] = []
     @FocusState var isTextFieldFocused: Bool
 
-    init(note: NotesModel? = nil) {
+    /// Action to auto-trigger once the view has fully appeared (set from HomeView bottom nav).
+    @State private var initialAction: NoteInitialAction = .none
+
+    init(note: NotesModel? = nil, initialAction: NoteInitialAction = .none) {
         _note = State(wrappedValue: note)
         self.lastEdited = note?.lastEdited
 
@@ -57,7 +53,8 @@ struct NotesPageView: View {
         _isImportant = State(wrappedValue: note?.isImportant ?? false)
         _bgSelected = State(wrappedValue: note?.bgImage)
         _imageItems = State(wrappedValue: note?.imageItems ?? [])
-        _drawingItems = State(wrappedValue: note?.drawingItems ?? []) // <-- Load saved drawings
+        _drawingItems = State(wrappedValue: note?.drawingItems ?? [])
+        _initialAction = State(wrappedValue: initialAction)
     }
 
     var body: some View {
@@ -75,43 +72,13 @@ struct NotesPageView: View {
                     .background(.white.opacity(0.3))
 
                 ScrollView {
-                    // ====== MULTIPLE DRAWINGS DISPLAY LAYER ======
+                    // ====== REFACTORED SEPARATE DRAWINGS LAYER ======
                     if !drawingItems.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                ForEach(Array(drawingItems.enumerated()), id: \.element.id) { index, item in
-                                    if let pkDrawing = try? PKDrawing(data: item.rawDrawingData) {
-                                        ZStack(alignment: .topTrailing) {
-                                            // Black background, exact 160x160 photo matches
-                                            DrawingInlineRenderView(drawing: pkDrawing)
-                                                .frame(width: 160, height: 160)
-                                                .background(Color.black)
-                                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                                                .onTapGesture {
-                                                    drawingEditTarget = DrawingEditTarget(index: index)
-                                                }
-
-                                            // Delete asset button
-                                            Button {
-                                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                    if drawingItems.indices.contains(index) {
-                                                        drawingItems.remove(at: index)
-                                                        saveNote()
-                                                    }
-                                                }
-                                            } label: {
-                                                Image(systemName: "xmark.circle.fill")
-                                                    .foregroundStyle(.white, .black.opacity(0.6))
-                                                    .font(.title3)
-                                                    .padding(6)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                            .padding(.top, 8)
-                        }
+                        DrawingRepresentView(
+                            drawingItems: $drawingItems,
+                            drawingEditTarget: $drawingEditTarget,
+                            saveNote: { saveNote() }
+                        )
                     }
 
                     NoteContentView(
@@ -156,6 +123,25 @@ struct NotesPageView: View {
         }
         .background(currentBackgroundView.ignoresSafeArea())
         .onDisappear { saveNote() }
+        .task {
+            // Auto-trigger the requested action after the navigation transition settles
+            guard initialAction != .none else { return }
+            try? await Task.sleep(for: .milliseconds(650))
+            await MainActor.run {
+                switch initialAction {
+                case .openDrawing:
+                    handelOptionsAction(.draw)
+                case .openImagePicker:
+                    handelOptionsAction(.addImage)
+                case .openCamera:
+                    handelOptionsAction(.takePhoto)
+                case .none:
+                    break
+                }
+                // Clear so it never fires again on re-appear
+                initialAction = .none
+            }
+        }
         .sheet(isPresented: $presentColorSheet){
             ColorView(colorSelected: $colorSelected, bgSelected: $bgSelected)
                 .presentationDetents([.height(300)])
@@ -196,7 +182,6 @@ struct NotesPageView: View {
         }
     }
 
-    // ====== EXTRACTION SHEET BUILDER ======
     @ViewBuilder
     private func drawingEditorSheet(for target: DrawingEditTarget) -> some View {
         let existingRaw: Data? = drawingItems.indices.contains(target.index) ? drawingItems[target.index].rawDrawingData : nil
@@ -206,10 +191,8 @@ struct NotesPageView: View {
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 if drawingItems.indices.contains(target.index) {
-                    // Update existing item array entry
                     drawingItems[target.index].rawDrawingData = rawDrawingData
                 } else {
-                    // Safety check fallback
                     drawingItems.append(NoteDrawingItem(rawDrawingData: rawDrawingData))
                 }
                 saveNote()
@@ -231,22 +214,5 @@ struct NotesPageView: View {
                 saveNote()
             }
         }
-    }
-}
-
-// Inline renderer element that forcefully busts cache via pure data hashing definitions
-struct DrawingInlineRenderView: View {
-    let drawing: PKDrawing
-    @Environment(\.displayScale) var displayScale
-
-    var body: some View {
-        let targetRect = drawing.bounds.insetBy(dx: -16, dy: -16)
-        let image = drawing.image(from: targetRect, scale: displayScale)
-
-        Image(uiImage: image)
-            .resizable()
-            .scaledToFit()
-            .padding(8)
-            .id(drawing.dataRepresentation().hashValue) // Force redraw when stroke hash updates
     }
 }

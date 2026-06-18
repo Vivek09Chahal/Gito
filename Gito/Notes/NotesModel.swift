@@ -127,3 +127,17 @@ struct NoteDrawingItem: Codable, Equatable, Identifiable {
     var id = UUID()
     var rawDrawingData: Data
 }
+
+enum NoteInitialAction: Equatable {
+    case none
+    case openDrawing
+    case openImagePicker
+    case openCamera
+}
+
+enum HomeBottomNavAction {
+    case newTextNote
+    case newDrawingNote
+    case newVoiceNote
+    case newImageNote
+}

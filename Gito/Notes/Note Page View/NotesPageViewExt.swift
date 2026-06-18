@@ -13,12 +13,24 @@ import PencilKit
 
 extension NotesPageView {
     func saveNote() {
-        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-                !context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-                !imageItems.isEmpty || !drawingItems.isEmpty else {
+
+        // 1. Check if everything is completely empty
+        let isTitleEmpty = title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let isContextEmpty = context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+        let isNoteCompletelyEmpty = isTitleEmpty && isContextEmpty && imageItems.isEmpty && drawingItems.isEmpty
+
+        // If the note exists but the user cleared out every single piece of content, delete it
+        if isNoteCompletelyEmpty {
+            if let existingNote = note {
+                notesContext.delete(existingNote)
+                try? notesContext.save()
+                self.note = nil
+            }
             return
         }
 
+        // 2. Otherwise, proceed with saving standard content updates
         if let existingNote = note {
             existingNote.noteTitle = title
             existingNote.noteContent = context

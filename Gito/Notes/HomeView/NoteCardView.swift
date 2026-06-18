@@ -8,68 +8,84 @@
 import SwiftUI
 import SwiftData
 
+/// A purely presentational card that renders a single note in the masonry grid.
+/// Height is driven by content — no fixed frame — giving the natural staggered effect.
 struct NoteCardView: View {
-
-    var isHorizontalScroll: Bool = false
     let note: NotesModel
-    var screenSize: CGSize
-
-    var cardHeight: CGFloat {
-        isHorizontalScroll ? screenSize.height * 0.37 : screenSize.height * 0.20
-    }
-
-    var cardWidth: CGFloat {
-        isHorizontalScroll ? screenSize.width * 0.58 : screenSize.width
-    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-
-//            if !note.imageItems.isEmpty {
-//                ForEach(note.imageItems, id: \.)
-//            }
-
-            HStack {
-                Text(note.noteTypeCase.rawValue.capitalized)
-                    .font(.caption)
+        VStack(alignment: .leading, spacing: 0) {
+            // Title
+            if !note.noteTitle.isEmpty {
+                Text(note.noteTitle)
+                    .font(.callout)
                     .fontWeight(.semibold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(8)
-                Spacer()
+                    .fontDesign(.rounded)
+                    .lineLimit(5)
+                    .padding(.bottom, 5)
             }
 
-            Text(note.noteTitle)
-                .font(.headline)
-                .fontDesign(.rounded)
-                .lineLimit(1)
+            // Content preview
+            if !note.noteContent.isEmpty {
+                Text(note.noteContent)
+                    .font(.caption)
+                    .lineLimit(10)
+                    .foregroundStyle(foregroundPrimary.opacity(0.72))
+                    .multilineTextAlignment(.leading)
+            }
 
-            Text(note.noteContent)
-                .font(.system(size: note.contentSize))
-                .lineLimit(isHorizontalScroll ? 6 : 4)
-                .multilineTextAlignment(.leading)
+            // Empty note placeholder
+            if note.noteTitle.isEmpty && note.noteContent.isEmpty {
+                Text("Empty note")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .italic()
+            }
 
-            Spacer(minLength: 0)
+            // Footer — type tag + date
+            HStack {
+                Text(note.noteTypeCase.rawValue.capitalized)
+                    .font(.caption2)
+                    .foregroundStyle(foregroundPrimary.opacity(0.4))
 
-            Text(note.lastEdited, style: .date)
-                .font(.caption2)
+                Spacer()
+
+                Text(note.lastEdited, style: .date)
+                    .font(.caption2)
+                    .foregroundStyle(foregroundPrimary.opacity(0.4))
+            }
+            .padding(.top, 10)
         }
-        .padding()
-        .foregroundColor(hasBackgroundImage ? .white : .primary)
-        .frame(width: isHorizontalScroll ? cardWidth : nil, height: cardHeight, alignment: .leading)
-        .frame(maxWidth: isHorizontalScroll ? cardWidth : .infinity, alignment: .leading)
-        .background(
-            cardBackground
-                .cornerRadius(24)
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .foregroundStyle(foregroundPrimary)
+        .background(cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.white.opacity(0.09), lineWidth: 0.5)
         )
-        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 3)
+        // Pin badge for important notes
+        .overlay(alignment: .topTrailing) {
+            if note.isImportant {
+                Image(systemName: "pin.fill")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(.yellow.opacity(0.85))
+                    .rotationEffect(.degrees(45))
+                    .padding(8)
+            }
+        }
     }
 
-    // MARK: - Helper Computed Properties
+    // MARK: - Helpers
+
     private var hasBackgroundImage: Bool {
-        if let name = note.bgImage?.imageName { return !name.isEmpty }
-        return false
+        guard let name = note.bgImage?.imageName else { return false }
+        return !name.isEmpty
+    }
+
+    private var foregroundPrimary: Color {
+        hasBackgroundImage ? .white : .primary
     }
 
     @ViewBuilder
@@ -78,11 +94,9 @@ struct NoteCardView: View {
             Image(imageName)
                 .resizable()
                 .scaledToFill()
-                .frame(width: isHorizontalScroll ? cardWidth : screenSize.width - 32, height: cardHeight)
-                .overlay(Color.black.opacity(0.2))
+                .overlay(Color.black.opacity(0.48))
         } else {
             note.notePageColor.pageColor
         }
     }
 }
-
