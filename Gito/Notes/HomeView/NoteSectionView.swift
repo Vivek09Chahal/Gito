@@ -9,10 +9,12 @@
 import SwiftUI
 import SwiftData
 
-/// Distributes notes across two columns for a natural staggered/masonry layout.
 struct NotesSectionView: View {
     @Environment(\.modelContext) private var modelContext
+
     var notes: [NotesModel]
+    var screenSize: CGSize
+    var viewModel: AppNavigationViewModel
 
     // Split notes into left and right columns by index
     private var leftColumn: [NotesModel] {
@@ -34,14 +36,13 @@ struct NotesSectionView: View {
     private func noteColumn(_ columnNotes: [NotesModel]) -> some View {
         LazyVStack(spacing: 10) {
             ForEach(columnNotes, id: \.id) { note in
-                NavigationLink {
-                    NotesPageView(note: note)
-                } label: {
+
+                NavigationLink(value: note) {
+                    // Injected screen frame bounds size rules to match parameters layout definition
                     NoteCardView(note: note)
                 }
                 .buttonStyle(.plain)
                 .contextMenu {
-                    // Pin / Unpin
                     Button {
                         note.isImportant.toggle()
                         try? modelContext.save()
@@ -51,12 +52,11 @@ struct NotesSectionView: View {
                             systemImage: note.isImportant ? "pin.slash.fill" : "pin.fill"
                         )
                     }
-
                     Divider()
-
-                    // Destructive delete
                     Button(role: .destructive) {
-                        modelContext.delete(note)
+                        withAnimation {
+                            viewModel.deleteNote(note)
+                        }
                     } label: {
                         Label("Delete Note", systemImage: "trash.fill")
                     }

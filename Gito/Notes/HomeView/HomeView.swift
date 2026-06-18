@@ -8,149 +8,139 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - Navigation Intent
-
-/// Bundles a newly created note with the initial action to auto-trigger in the editor.
-private struct ActiveNoteIntent: Equatable, Identifiable, Hashable {
-    let id = UUID()
-    let note: NotesModel
-    let action: NoteInitialAction
-}
-
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
 
-    @Query(
-        filter: #Predicate<NotesModel> { !$0.isImportant },
-        sort: [SortDescriptor(\.lastEdited, order: .reverse)]
-    )
-    private var notes: [NotesModel]
+    // Core database queries
+    @Query(filter: #Predicate<NotesModel> { !$0.isImportant }, sort: [SortDescriptor(\.lastEdited, order: .reverse)]) private var notes: [NotesModel]
+    @Query(filter: #Predicate<NotesModel> { $0.isImportant }, sort: [SortDescriptor(\.lastEdited, order: .reverse)]) private var pinnedNotes: [NotesModel]
 
-    @Query(
-        filter: #Predicate<NotesModel> { $0.isImportant },
-        sort: [SortDescriptor(\.lastEdited, order: .reverse)]
-    )
-    private var pinnedNotes: [NotesModel]
+    // Unified Application View-Model Orchestrator State Instance
+    @State private var appViewModel: AppNavigationViewModel
 
-    @State private var activeNoteIntent: ActiveNoteIntent? = nil
-    @State private var searchText: String = ""
+    init(modelContext: ModelContext) {
+        _appViewModel = State(wrappedValue: AppNavigationViewModel(modelContext: modelContext))
+    }
 
-    // MARK: - Filtered Queries
-
+    // Computed properties for dynamic search filtering
     private var filteredNotes: [NotesModel] {
-        guard !searchText.isEmpty else { return notes }
+        guard !appViewModel.searchText.isEmpty else { return notes }
         return notes.filter {
-            $0.noteTitle.localizedCaseInsensitiveContains(searchText) ||
-            $0.noteContent.localizedCaseInsensitiveContains(searchText)
+            $0.noteTitle.localizedCaseInsensitiveContains(appViewModel.searchText) ||
+            $0.noteContent.localizedCaseInsensitiveContains(appViewModel.searchText)
         }
     }
 
     private var filteredPinnedNotes: [NotesModel] {
-        guard !searchText.isEmpty else { return pinnedNotes }
+        guard !appViewModel.searchText.isEmpty else { return pinnedNotes }
         return pinnedNotes.filter {
-            $0.noteTitle.localizedCaseInsensitiveContains(searchText) ||
-            $0.noteContent.localizedCaseInsensitiveContains(searchText)
+            $0.noteTitle.localizedCaseInsensitiveContains(appViewModel.searchText) ||
+            $0.noteContent.localizedCaseInsensitiveContains(appViewModel.searchText)
         }
     }
 
-    private var isEmpty: Bool {
-        notes.isEmpty && pinnedNotes.isEmpty
+    private var isListEmpty: Bool {
+        filteredNotes.isEmpty && filteredPinnedNotes.isEmpty
     }
 
-    // MARK: - Body
-
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color(.systemBackground).ignoresSafeArea()
+        @Bindable var vm = appViewModel
+        GeometryReader { geo in
+            NavigationStack {
+                ZStack {
+                    Color.default.ignoresSafeArea()
 
-                // Main content column
-                VStack(spacing: 0) {
-                    searchBar
-
-                    if isEmpty {
-                        Spacer()
-                        EmptyStateView()
-                        Spacer()
+                    // Content List Layout
+                    if isListEmpty {
+                        VStack {
+                            Spacer()
+                            EmptyStateView()
+                            Spacer()
+                        }
                     } else {
                         ScrollView(showsIndicators: false) {
                             LazyVStack(alignment: .leading, spacing: 0) {
-                                // Pinned section
                                 if !filteredPinnedNotes.isEmpty {
                                     sectionHeader("PINNED")
-                                    NotesSectionView(notes: filteredPinnedNotes)
+                                    NotesSectionView(notes: filteredPinnedNotes, screenSize: geo.size, viewModel: appViewModel)
                                         .padding(.horizontal, 12)
                                         .padding(.bottom, 16)
                                 }
 
-                                // Others section
                                 if !filteredNotes.isEmpty {
                                     if !filteredPinnedNotes.isEmpty {
                                         sectionHeader("OTHERS")
                                     }
-                                    NotesSectionView(notes: filteredNotes)
+                                    NotesSectionView(notes: filteredNotes, screenSize: geo.size, viewModel: appViewModel)
                                         .padding(.horizontal, 12)
                                         .padding(.bottom, 16)
                                 }
                             }
-                            // Bottom clearance so last card doesn't hide behind the floating pill
-                            .padding(.bottom, 110)
                         }
                     }
                 }
+                .navigationTitle("My Notes")
+                .searchable(
+                    text: $vm.searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "Search your notes"
+                )
+                .toolbar {
+                    ToolbarItemGroup(placement: .bottomBar) {
+                        HStack(spacing: 6) {
+                            nativeShortcutButton(icon: "checkmark.square", action: .newTextNote)
+                            nativeShortcutButton(icon: "pencil.tip", action: .newDrawingNote)
+                            nativeShortcutButton(icon: "mic", action: .newVoiceNote)
+                            nativeShortcutButton(icon: "photo", action: .newImageNote)
+                        }
+                        .padding(3)
+                    }
 
-                // Floating liquid-glass pill — overlaid above content
-                VStack {
-                    Spacer()
-                    HomeBottomNavBar { action in
-                        handleBottomNavAction(action)
+                    ToolbarSpacer(.flexible, placement: .bottomBar)
+
+                    ToolbarItem(placement: .bottomBar) {
+                        Button {
+                            appViewModel.handleBottomNavAction(.newTextNote)
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundStyle(.white)
+                        }
                     }
                 }
-                .ignoresSafeArea(edges: .bottom)
-            }
-            .preferredColorScheme(.dark)
-            .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(item: $activeNoteIntent) { intent in
-                NotesPageView(note: intent.note, initialAction: intent.action)
-            }
-        }
-    }
-
-    // MARK: - Search Bar
-
-    private var searchBar: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.tertiary)
-                .font(.system(size: 15))
-
-            TextField("Search your notes", text: $searchText)
-                .font(.body)
-                .submitLabel(.search)
-
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.tertiary)
+                .navigationDestination(item: $vm.activeNoteIntent) { intent in
+                    let _ = { appViewModel.editorInitialAction = intent.action }()
+                    return NotesPageView(viewModel: appViewModel)
+                }
+                .navigationDestination(for: NotesModel.self) { tappedNote in
+                    let _ = appViewModel.loadActiveNote(tappedNote)
+                    return NotesPageView(viewModel: appViewModel)
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 13)
-        .background(Color(white: 0.14), in: RoundedRectangle(cornerRadius: 14))
-        .padding(.horizontal, 16)
-        .padding(.top, 10)
-        .padding(.bottom, 14)
     }
 
-    // MARK: - Section Header
+    // MARK: - Local Toolbar Helpers
+
+    @ViewBuilder
+    private func nativeShortcutButton(icon: String, action: HomeBottomNavAction) -> some View {
+        Button {
+            appViewModel.handleBottomNavAction(action)
+        } label: {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundStyle(.white.opacity(0.65))
+                .frame(width: 42, height: 42)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.glassProminent)
+        .tint(Color.default)
+    }
 
     @ViewBuilder
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(.caption2)
+            .font(.caption)
             .fontWeight(.semibold)
             .foregroundStyle(.secondary)
             .tracking(1.5)
@@ -158,48 +148,31 @@ struct HomeView: View {
             .padding(.top, 14)
             .padding(.bottom, 8)
     }
-
-
-    // MARK: - Actions
-
-    private func createNewNote(action: NoteInitialAction = .none) {
-        let newNote = NotesModel(
-            bgImage: nil,
-            noteTitle: "",
-            noteTypeCase: .note,
-            noteContent: "",
-            isImportant: false,
-            notePageColor: .defaultColor,
-            contentSize: 16,
-            imageItems: []
-        )
-        modelContext.insert(newNote)
-        activeNoteIntent = ActiveNoteIntent(note: newNote, action: action)
-    }
-
-    /// Routes each bottom-nav shortcut to its corresponding note action.
-    private func handleBottomNavAction(_ action: HomeBottomNavAction) {
-        switch action {
-        case .newTextNote:    createNewNote(action: .none)
-        case .newDrawingNote: createNewNote(action: .openDrawing)
-        case .newVoiceNote:   createNewNote(action: .none)   // Reserved
-        case .newImageNote:   createNewNote(action: .openImagePicker)
-        }
-    }
 }
 
 // MARK: - Preview
 
 #Preview {
+    // 1. Create an isolated in-memory container so mock entries never persist to the device disk
     let container: ModelContainer = {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: NotesModel.self, configurations: config)
-        for note in NotesDummyData.dummyNotes {
-            container.mainContext.insert(note)
+        let schema = Schema([NotesModel.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+
+        do {
+            let container = try ModelContainer(for: schema, configurations: config)
+
+            // 2. Seed your dummy data mock records onto the main thread context
+            // Ensure NotesDummyData.dummyNotes is accessible in your preview assets group
+            for note in NotesDummyData.dummyNotes {
+                container.mainContext.insert(note)
+            }
+            return container
+        } catch {
+            fatalError("Failed to configure in-memory preview container: \(error.localizedDescription)")
         }
-        return container
     }()
 
-    return HomeView()
-        .modelContainer(container)
+    // 3. Inject the live memory mainContext dependency straight into the root view initializer
+    return HomeView(modelContext: container.mainContext)
+        .modelContainer(container) // Fulfills standard environment SwiftData requirements
 }

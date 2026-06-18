@@ -14,20 +14,23 @@ struct HomeBottomNavBar: View {
     var body: some View {
         HStack(spacing: 0) {
             navButton(icon: "checkmark.square",  action: .newTextNote)
-            navButton(icon: "textformat",        action: .newDrawingNote)
+            navButton(icon: "pencil.tip",        action: .newDrawingNote)
             navButton(icon: "mic",               action: .newVoiceNote)
             navButton(icon: "photo",             action: .newImageNote)
 
             Spacer(minLength: 0)
 
-            Button { onAction(.newTextNote) } label: { embeddedFAB }
-                .buttonStyle(.plain)
-                .padding(.trailing, 8)
+            Button {
+                onAction(.newTextNote)
+            } label: {
+                embeddedFAB
+            }
+            .buttonStyle(.plain)
+            .padding(.trailing, 8)
         }
         .padding(.leading, 4)
         .frame(height: 62)
-        .background { glassPill }
-        .clipShape(Capsule())
+        .background { morphicPill }
         .shadow(color: .black.opacity(0.55), radius: 24, x: 0, y: 10)
         .padding(.horizontal, 16)
         .padding(.bottom, 24)
@@ -51,8 +54,8 @@ struct HomeBottomNavBar: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color(white: 0.40),
-                            Color(white: 0.22)
+                            Color(white: 0.2),
+                            Color(white: 0.2)
                         ],
                         center: UnitPoint(x: 0.4, y: 0.35),
                         startRadius: 0,
@@ -60,17 +63,6 @@ struct HomeBottomNavBar: View {
                     )
                 )
                 .frame(width: 46, height: 46)
-                .overlay(
-                    Circle()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [Color.white.opacity(0.35), Color.white.opacity(0.05)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.75
-                        )
-                )
                 .shadow(color: .black.opacity(0.35), radius: 6, x: 0, y: 3)
 
             Image(systemName: "plus")
@@ -79,59 +71,20 @@ struct HomeBottomNavBar: View {
         }
     }
 
-    private var glassPill: some View {
+    private var morphicPill: some View {
         ZStack {
             Capsule()
-                .fill(.ultraThinMaterial)
 
             Capsule()
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(white: 0.16, opacity: 0.90),
-                            Color(white: 0.10, opacity: 0.97)
+                            Color(white: 0.02, opacity: 0.9),
+                            Color(white: 0.04, opacity: 0.99)
                         ],
                         startPoint: .top,
                         endPoint: .bottom
                     )
-                )
-
-            Capsule()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.18),
-                            Color.white.opacity(0.00)
-                        ],
-                        startPoint: .top,
-                        endPoint: UnitPoint(x: 0.5, y: 0.55)
-                    )
-                )
-
-            Capsule()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.00),
-                            Color.white.opacity(0.06)
-                        ],
-                        startPoint: UnitPoint(x: 0.5, y: 0.6),
-                        endPoint: .bottom
-                    )
-                )
-
-            Capsule()
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.28),
-                            Color.white.opacity(0.04),
-                            Color.white.opacity(0.10)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 0.75
                 )
         }
     }

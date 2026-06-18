@@ -15,6 +15,7 @@ struct NoteCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+//            Spacer()
             // Title
             if !note.noteTitle.isEmpty {
                 Text(note.noteTitle)
@@ -22,7 +23,7 @@ struct NoteCardView: View {
                     .fontWeight(.semibold)
                     .fontDesign(.rounded)
                     .lineLimit(5)
-                    .padding(.bottom, 5)
+                    .padding(.vertical)
             }
 
             // Content preview
@@ -41,7 +42,7 @@ struct NoteCardView: View {
                     .foregroundStyle(.tertiary)
                     .italic()
             }
-
+            Spacer()
             // Footer — type tag + date
             HStack {
                 Text(note.noteTypeCase.rawValue.capitalized)
@@ -58,6 +59,7 @@ struct NoteCardView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: 200)
         .foregroundStyle(foregroundPrimary)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -65,7 +67,6 @@ struct NoteCardView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.white.opacity(0.09), lineWidth: 0.5)
         )
-        // Pin badge for important notes
         .overlay(alignment: .topTrailing) {
             if note.isImportant {
                 Image(systemName: "pin.fill")
@@ -76,8 +77,6 @@ struct NoteCardView: View {
             }
         }
     }
-
-    // MARK: - Helpers
 
     private var hasBackgroundImage: Bool {
         guard let name = note.bgImage?.imageName else { return false }

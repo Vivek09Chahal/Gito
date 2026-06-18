@@ -1,5 +1,5 @@
 //
-//  EntryScreen.swift
+//  EntryScreenView.swift
 //  Gito
 //
 //  Created by Vivek Chahal on 6/10/26.
@@ -19,7 +19,7 @@ struct EntryScreenView: View {
                     isFirstLaunch = false
                 })
             } else {
-                HomeView()
+                HomeView(modelContext: modelContext)
             }
         }
     }

@@ -14,8 +14,12 @@ struct NoteContentView: View {
 
     @State private var imageCache: [UUID: UIImage] = [:]
 
+    /// Tracked so the large invisible tap area below the text can steal focus back.
+    @FocusState private var isFocused: Bool
+
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 0) {
+            // ── Image attachments ──────────────────────────────
             if !imageItems.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
@@ -38,22 +42,32 @@ struct NoteContentView: View {
                 }
             }
 
+            // ── Content text field ─────────────────────────────
             TextField(text: $content, axis: .vertical) {
-                Text("Welcome!")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.white.opacity(0.4))
+                Text("Start writing…")
+                    .font(.system(size: textSize))
+                    .foregroundStyle(.white.opacity(0.35))
             }
             .font(.system(size: textSize))
             .foregroundStyle(.white)
-            .padding(.top)
+            .focused($isFocused)
+            .padding(.top, 12)
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .topLeading)
+
+            // ── Large invisible tap target ─────────────────────
+            // Fills all remaining space in the ScrollView so tapping
+            // anywhere below the typed text will bring up the keyboard.
+            Color.clear
+                .frame(maxWidth: .infinity, minHeight: 250)
+                .contentShape(Rectangle())
+                .onTapGesture { isFocused = true }
         }
         .onAppear { rebuildCache() }
-        .onChange(of: imageItems) { _, _ in
-            rebuildCache()
-        }
+        .onChange(of: imageItems) { _, _ in rebuildCache() }
     }
+
+    // MARK: - Image Cache
 
     private func rebuildCache() {
         var updated: [UUID: UIImage] = [:]
