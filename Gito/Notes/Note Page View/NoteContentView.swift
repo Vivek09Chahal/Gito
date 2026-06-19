@@ -13,13 +13,10 @@ struct NoteContentView: View {
     @Binding var imageItems: [NoteImageItem]
 
     @State private var imageCache: [UUID: UIImage] = [:]
-
-    /// Tracked so the large invisible tap area below the text can steal focus back.
     @FocusState private var isFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // ── Image attachments ──────────────────────────────
             if !imageItems.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
@@ -42,7 +39,6 @@ struct NoteContentView: View {
                 }
             }
 
-            // ── Content text field ─────────────────────────────
             TextField(text: $content, axis: .vertical) {
                 Text("Start writing…")
                     .font(.system(size: textSize))
@@ -55,9 +51,6 @@ struct NoteContentView: View {
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            // ── Large invisible tap target ─────────────────────
-            // Fills all remaining space in the ScrollView so tapping
-            // anywhere below the typed text will bring up the keyboard.
             Color.clear
                 .frame(maxWidth: .infinity, minHeight: 250)
                 .contentShape(Rectangle())
@@ -68,7 +61,6 @@ struct NoteContentView: View {
     }
 
     // MARK: - Image Cache
-
     private func rebuildCache() {
         var updated: [UUID: UIImage] = [:]
         for item in imageItems {

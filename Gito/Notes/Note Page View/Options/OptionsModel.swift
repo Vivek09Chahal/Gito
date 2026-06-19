@@ -12,6 +12,7 @@ enum NoteOptionActions: String, CaseIterable, Identifiable {
     case addImage = "Add Image"
     case takePhoto = "Take Photo"
     case draw = "draw"
+    case mic = "mic"
 
     var id: String { rawValue }
 
@@ -20,6 +21,7 @@ enum NoteOptionActions: String, CaseIterable, Identifiable {
         case .addImage: return "photo.fill.on.rectangle.fill"
         case .takePhoto: return "camera"
         case .draw: return "pencil.and.outline"
+        case .mic: return "microphone.fill"
         }
     }
 }

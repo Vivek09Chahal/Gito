@@ -53,6 +53,17 @@ struct NotesPageView: View {
                         textSize: $vm.editorTextSize,
                         imageItems: $vm.editorImageItems
                     )
+                    // Invisible tap layer: stop recording gracefully before keyboard
+                    // takes focus, so the transcribed text is preserved in editorContext.
+                    .simultaneousGesture(
+                        TapGesture().onEnded {
+                            if viewModel.speechManager.isRecording {
+                                let finalText = viewModel.speechManager.transcribedText
+                                viewModel.speechManager.stopRecording()
+                                vm.editorContext = finalText
+                            }
+                        }
+                    )
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .scrollBounceBehavior(.basedOnSize, axes: .vertical)
@@ -94,7 +105,29 @@ struct NotesPageView: View {
             await viewModel.processInitialAction()
         }
         .background(currentBackgroundView.ignoresSafeArea())
-        .onDisappear { viewModel.saveNote() }
+        .overlay(alignment: .bottom) {
+            if viewModel.speechManager.isRecording {
+                VoiceWaveView(
+                    audioLevel: viewModel.speechManager.audioLevel,
+                    isRecording: viewModel.speechManager.isRecording
+                )
+                .padding(.bottom, 100)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .onTapGesture { viewModel.handleOptionsAction(.mic) } // tap the wave to stop dictating
+            }
+        }
+        .animation(.spring(duration: 0.3), value: viewModel.speechManager.isRecording)
+        .onChange(of: viewModel.speechManager.transcribedText) { _, newValue in
+            // Only push live transcription updates while actively recording.
+            // Once recording stops (user tapped field or pressed stop), we no longer
+            // overwrite editorContext so manual edits are never silently erased.
+            guard viewModel.speechManager.isRecording else { return }
+            vm.editorContext = newValue
+        }
+        .onDisappear {
+            viewModel.speechManager.stopRecording()
+            viewModel.saveNote()
+        }
         .sheet(isPresented: $vm.presentColorSheet){
             ColorView(colorSelected: $vm.editorColorSelected, bgSelected: $vm.editorBgSelected)
                 .presentationDetents([.height(300)])

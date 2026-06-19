@@ -31,6 +31,9 @@ final class AppNavigationViewModel {
     var editorImageItems: [NoteImageItem] = []
     var editorDrawingItems: [NoteDrawingItem] = []
 
+    // ====== VOICE / SPEECH-TO-TEXT STATE ======
+    var speechManager = SpeechToTextManager()
+
     // Sheet Status Toggles
     var presentColorSheet: Bool = false
     var presentMenuSheet: Bool = false
@@ -175,6 +178,20 @@ final class AppNavigationViewModel {
             let newBlankItem = NoteDrawingItem(rawDrawingData: PKDrawing().dataRepresentation())
             editorDrawingItems.append(newBlankItem)
             drawingEditTarget = DrawingEditTarget(index: editorDrawingItems.count - 1)
+
+        case .mic:
+            if speechManager.isRecording {
+                // Snapshot the latest transcription *before* stopping so the final
+                // partial result is never lost when the recognition task is cancelled.
+                let finalText = speechManager.transcribedText
+                speechManager.stopRecording()
+                editorContext = finalText
+            } else {
+                speechManager.requestAuthorization { [weak self] granted in
+                    guard granted, let self else { return }
+                    self.speechManager.startRecording(existingText: self.editorContext)
+                }
+            }
         }
     }
 
