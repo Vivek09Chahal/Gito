@@ -21,6 +21,7 @@ enum NoteInitialAction: Equatable {
     case openDrawing
     case openImagePicker
     case openCamera
+    case openMic
 }
 
 enum HomeBottomNavAction {

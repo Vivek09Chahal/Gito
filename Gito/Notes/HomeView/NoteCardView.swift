@@ -7,16 +7,13 @@
 
 import SwiftUI
 import SwiftData
+import PencilKit
 
-/// A purely presentational card that renders a single note in the masonry grid.
-/// Height is driven by content — no fixed frame — giving the natural staggered effect.
 struct NoteCardView: View {
     let note: NotesModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-//            Spacer()
-            // Title
             if !note.noteTitle.isEmpty {
                 Text(note.noteTitle)
                     .font(.callout)
@@ -24,9 +21,16 @@ struct NoteCardView: View {
                     .fontDesign(.rounded)
                     .lineLimit(5)
                     .padding(.vertical)
+            } else {
+                Text("No TITLE")
+                    .font(.callout)
+                    .fontWeight(.semibold)
+                    .fontDesign(.rounded)
+                    .lineLimit(5)
+                    .padding(.vertical)
+
             }
 
-            // Content preview
             if !note.noteContent.isEmpty {
                 Text(note.noteContent)
                     .font(.caption)
@@ -35,7 +39,6 @@ struct NoteCardView: View {
                     .multilineTextAlignment(.leading)
             }
 
-            // Empty note placeholder
             if note.noteTitle.isEmpty && note.noteContent.isEmpty {
                 Text("Empty note")
                     .font(.caption)
@@ -43,14 +46,35 @@ struct NoteCardView: View {
                     .italic()
             }
             Spacer()
-            // Footer — type tag + date
+
             HStack {
-                Text(note.noteTypeCase.rawValue.capitalized)
-                    .font(.caption2)
-                    .foregroundStyle(foregroundPrimary.opacity(0.4))
+                if !note.imageItems.isEmpty {
+                    HStack {
+                        // Use .prefix(4) to limit the array to a maximum of 4 items safely
+                        ForEach(note.imageItems.prefix(2), id: \.id) { item in
+                            if let uiImage = UIImage(data: item.jpegData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 25, height: 35)
+                            }
+                        }
+                    }
+                }
 
+                if !note.drawingItems.isEmpty {
+                    ForEach(Array(note.drawingItems.prefix(2).enumerated()), id: \.element.id) { index, item in
+                        if let pkDrawing = try? PKDrawing(data: item.rawDrawingData) {
+                            DrawingInlineRenderView(drawing: pkDrawing)
+                                .frame(width: 25, height: 35)
+                                .background(Color.black)
+                        }
+                    }
+                }
+            }
+
+            HStack {
                 Spacer()
-
                 Text(note.lastEdited, style: .date)
                     .font(.caption2)
                     .foregroundStyle(foregroundPrimary.opacity(0.4))

@@ -45,7 +45,6 @@ struct DrawingRepresentView: View {
                     }
                 }
             }
-            .padding(.horizontal)
             .padding(.top, 8)
         }
     }

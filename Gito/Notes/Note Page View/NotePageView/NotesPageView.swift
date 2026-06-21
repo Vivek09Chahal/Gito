@@ -14,61 +14,55 @@ struct NotesPageView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: AppNavigationViewModel
 
-    init(viewModel: AppNavigationViewModel, existingNote: NotesModel? = nil, initialAction: NoteInitialAction = .none) {
+    init(viewModel: AppNavigationViewModel) {
         self.viewModel = viewModel
-        if let note = existingNote {
-            viewModel.loadActiveNote(note)
-        }
-        viewModel.activeNoteIntent = existingNote != nil ? nil : viewModel.activeNoteIntent
     }
 
     var body: some View {
         @Bindable var vm = viewModel
 
         GeometryReader { proxy in
-            VStack(alignment: .leading) {
-                TextField(text: $vm.editorTitle, axis: .vertical) {
-                    Text("TITLE")
-                        .font(.system(size: 50, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.4))
-                }
-                .font(.system(size: 50, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
-
-                Divider()
-                    .background(.white.opacity(0.3))
-
-                ScrollView {
-                    // Unified Drawings container layer
-                    if !viewModel.editorDrawingItems.isEmpty {
-                        DrawingRepresentView(
-                            drawingItems: $vm.editorDrawingItems,
-                            drawingEditTarget: $vm.drawingEditTarget,
-                            saveNote: { viewModel.saveNote() }
-                        )
-                    }
-
-                    NoteContentView(
-                        content: $vm.editorContext,
-                        textSize: $vm.editorTextSize,
-                        imageItems: $vm.editorImageItems
-                    )
-                    // Invisible tap layer: stop recording gracefully before keyboard
-                    // takes focus, so the transcribed text is preserved in editorContext.
-                    .simultaneousGesture(
-                        TapGesture().onEnded {
-                            if viewModel.speechManager.isRecording {
-                                let finalText = viewModel.speechManager.transcribedText
-                                viewModel.speechManager.stopRecording()
-                                vm.editorContext = finalText
-                            }
+            VStack(spacing: 0) {
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading) {
+                        TextField(text: $vm.editorTitle, axis: .vertical) {
+                            Text("TITLE")
+                                .font(.system(size: 40, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.4))
                         }
-                    )
+                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+
+                        Divider()
+                            .background(.white.opacity(0.3))
+
+                            if !viewModel.editorDrawingItems.isEmpty {
+                                DrawingRepresentView(
+                                    drawingItems: $vm.editorDrawingItems,
+                                    drawingEditTarget: $vm.drawingEditTarget,
+                                    saveNote: { viewModel.saveNote() }
+                                )
+                            }
+
+                            NoteContentView(
+                                content: $vm.editorContext,
+                                textSize: $vm.editorTextSize,
+                                imageItems: $vm.editorImageItems
+                            )
+                            .simultaneousGesture(
+                                TapGesture().onEnded {
+                                    if viewModel.speechManager.isRecording {
+                                        let finalText = viewModel.speechManager.transcribedText
+                                        viewModel.speechManager.stopRecording()
+                                        vm.editorContext = finalText
+                                    }
+                                }
+                            )
+                    }
+                    .padding()
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .scrollBounceBehavior(.basedOnSize, axes: .vertical)
-
-                Spacer()
 
                 BottomNav(proxy: proxy,
                           presentOptionSheet: $vm.presentOptionSheet,
@@ -77,7 +71,6 @@ struct NotesPageView: View {
                           lastEdited: viewModel.currentEditingNote?.lastEdited
                 )
             }
-            .padding()
         }
         .preferredColorScheme(.dark)
         .toolbar {
@@ -113,14 +106,11 @@ struct NotesPageView: View {
                 )
                 .padding(.bottom, 100)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
-                .onTapGesture { viewModel.handleOptionsAction(.mic) } // tap the wave to stop dictating
+                .onTapGesture { viewModel.handleOptionsAction(.mic) }
             }
         }
         .animation(.spring(duration: 0.3), value: viewModel.speechManager.isRecording)
         .onChange(of: viewModel.speechManager.transcribedText) { _, newValue in
-            // Only push live transcription updates while actively recording.
-            // Once recording stops (user tapped field or pressed stop), we no longer
-            // overwrite editorContext so manual edits are never silently erased.
             guard viewModel.speechManager.isRecording else { return }
             vm.editorContext = newValue
         }

@@ -15,7 +15,6 @@ final class NotesModel {
     var bgImage: bgImage?
     var noteTitle: String
     var noteContent: String
-    var noteTypeCase: noteTypes
     var isImportant: Bool
     var contentSize: CGFloat
     var notePageColor: pageColors
@@ -24,7 +23,7 @@ final class NotesModel {
     var drawingItems: [NoteDrawingItem]
     
     init(id: UUID = .init(),
-         bgImage: bgImage? = nil, noteTitle: String, noteTypeCase: noteTypes,
+         bgImage: bgImage? = nil, noteTitle: String,
          noteContent: String, isImportant: Bool, notePageColor: pageColors,
          contentSize: CGFloat, lastEdited: Date = Date.now,
          imageItems: [NoteImageItem] = [],
@@ -32,7 +31,6 @@ final class NotesModel {
         self.id = id
         self.bgImage = bgImage
         self.noteTitle = noteTitle
-        self.noteTypeCase = noteTypeCase
         self.noteContent = noteContent
         self.isImportant = isImportant
         self.notePageColor = notePageColor
@@ -41,15 +39,6 @@ final class NotesModel {
         self.imageItems = imageItems
         self.drawingItems = drawingItems
     }
-}
-
-// Note Type
-enum noteTypes: String, Codable {
-    case today
-    case plans
-    case task
-    case note
-    case remember
 }
 
 // Page Color

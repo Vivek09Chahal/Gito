@@ -1,47 +1,56 @@
 import SwiftUI
 
-struct DragGestureView: View {
-    @State private var isDragging = false
-
-    // 1. Tracks the total distance moved during the active drag interaction
-    @State private var currentOffset = CGSize.zero
-
-    // 2. Permanently saves the position coordinate where the view was last dropped
-    @State private var accumulatedOffset = CGSize.zero
-
-    var drag: some Gesture {
-        DragGesture()
-            .onChanged { value in
-                self.isDragging = true
-                // 3. Update the temporary distance as the finger slides
-                self.currentOffset = value.translation
+struct AnimatedScrollView: View {
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 20) {
+                ForEach(0..<10) { index in
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(Color.indigo.gradient)
+                        .frame(width: 250, height: 400)
+                        .overlay(
+                            Text("Card \(index)")
+                                .font(.largeTitle.bold())
+                                .foregroundColor(.white)
+                        )
+                        // 1. Attach the visualEffect modifier
+                        .visualEffect { content, proxy in
+                            content
+                                // 2. Calculate effects based on the X position
+                                .scaleEffect(scale(for: proxy))
+                                .rotation3DEffect(
+                                    .degrees(rotation(for: proxy)),
+                                    axis: (x: 0, y: 1, z: 0)
+                                )
+                        }
+                }
             }
-            .onEnded { value in
-                self.isDragging = false
-                // 4. Lock in the new coordinates permanently by combining existing and new translations
-                self.accumulatedOffset.width += value.translation.width
-                self.accumulatedOffset.height += value.translation.height
-
-                // 5. Clear the temporary active offset values back to zero
-                self.currentOffset = .zero
-            }
+            .padding(40)
+        }
     }
 
-    var body: some View {
-        Circle()
-            .fill(self.isDragging ? Color.red : Color.blue)
-            .frame(width: 100, height: 100)
-            // 6. Combine the saved position and current active translation together
-            .offset(
-                x: accumulatedOffset.width + currentOffset.width,
-                y: accumulatedOffset.height + currentOffset.height
-            )
-            // Apply a smooth spring animation when the finger lets go
-//            .animation(.spring(), value: isDragging)
-            .gesture(drag)
+    // Helper function to determine scale based on screen position
+    func scale(for proxy: GeometryProxy) -> CGFloat {
+        let minX = proxy.frame(in: .global).minX
+        let screenWidth = UIScreen.main.bounds.width
+
+        // If the card is near the center, scale is 1.0. If it moves away, it shrinks.
+        let distance = abs(screenWidth / 2 - (minX + 125))
+        let scale = 1 - (distance / 1000)
+
+        return max(0.8, scale) // Don't let it shrink below 0.8
+    }
+
+    // Helper function to add a slight 3D rotation
+    func rotation(for proxy: GeometryProxy) -> Double {
+        let minX = proxy.frame(in: .global).minX
+        let screenWidth = UIScreen.main.bounds.width
+        let distance = screenWidth / 2 - (minX + 125)
+
+        return Double(distance / -20)
     }
 }
 
 #Preview {
-    DragGestureView()
+    AnimatedScrollView()
 }

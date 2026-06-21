@@ -3,7 +3,6 @@
 //  Gito
 //
 //  Refactored from homeViewNavGrid.swift.
-//  Renders a two-column staggered masonry grid (Google Keep style).
 //
 
 import SwiftUI
@@ -37,7 +36,10 @@ struct NotesSectionView: View {
         LazyVStack(spacing: 10) {
             ForEach(columnNotes, id: \.id) { note in
 
-                NavigationLink(value: note) {
+                Button {
+                    viewModel.loadActiveNote(note)
+                    viewModel.activeNoteIntent = ActiveNoteIntent(note: note, action: .none)
+                } label: {
                     // Injected screen frame bounds size rules to match parameters layout definition
                     NoteCardView(note: note)
                 }

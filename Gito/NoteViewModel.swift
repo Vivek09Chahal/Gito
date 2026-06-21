@@ -24,7 +24,7 @@ final class AppNavigationViewModel {
     var currentEditingNote: NotesModel? = nil
     var editorTitle: String = ""
     var editorContext: String = ""
-    var editorTextSize: CGFloat = 20
+    var editorTextSize: CGFloat = 30
     var editorColorSelected: pageColors = .defaultColor
     var editorBgSelected: bgImage? = nil
     var editorIsImportant: Bool = false
@@ -94,7 +94,6 @@ final class AppNavigationViewModel {
         } else {
             let newNote = NotesModel(
                 noteTitle: editorTitle,
-                noteTypeCase: .note,
                 noteContent: editorContext,
                 isImportant: editorIsImportant,
                 notePageColor: editorColorSelected,
@@ -117,7 +116,6 @@ final class AppNavigationViewModel {
         let newNote = NotesModel(
             bgImage: nil,
             noteTitle: "",
-            noteTypeCase: .note,
             noteContent: "",
             isImportant: false,
             notePageColor: .defaultColor,
@@ -138,7 +136,7 @@ final class AppNavigationViewModel {
         switch action {
         case .newTextNote:    createNewNote(action: .none)
         case .newDrawingNote: createNewNote(action: .openDrawing)
-        case .newVoiceNote:   createNewNote(action: .none)
+        case .newVoiceNote:   createNewNote(action: .openMic)
         case .newImageNote:   createNewNote(action: .openImagePicker)
         }
     }
@@ -219,9 +217,15 @@ final class AppNavigationViewModel {
         guard !Task.isCancelled else { return }
 
         switch editorInitialAction {
-        case .openDrawing: handleOptionsAction(.draw)
+        case .openDrawing:     handleOptionsAction(.draw)
         case .openImagePicker: handleOptionsAction(.addImage)
-        case .openCamera: handleOptionsAction(.takePhoto)
+        case .openCamera:      handleOptionsAction(.takePhoto)
+        case .openMic:
+            // Request mic + speech permissions, then auto-start recording.
+            speechManager.requestAuthorization { [weak self] granted in
+                guard granted, let self else { return }
+                self.speechManager.startRecording(existingText: self.editorContext)
+            }
         case .none: break
         }
         editorInitialAction = .none

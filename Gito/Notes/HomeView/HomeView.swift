@@ -48,7 +48,7 @@ struct HomeView: View {
         GeometryReader { geo in
             NavigationStack {
                 ZStack {
-                    Color.default.ignoresSafeArea()
+                    Color(uiColor: .systemBackground)
 
                     // Content List Layout
                     if isListEmpty {
@@ -109,12 +109,7 @@ struct HomeView: View {
                     }
                 }
                 .navigationDestination(item: $vm.activeNoteIntent) { intent in
-                    let _ = { appViewModel.editorInitialAction = intent.action }()
-                    return NotesPageView(viewModel: appViewModel)
-                }
-                .navigationDestination(for: NotesModel.self) { tappedNote in
-                    let _ = appViewModel.loadActiveNote(tappedNote)
-                    return NotesPageView(viewModel: appViewModel)
+                    NotesPageView(viewModel: appViewModel)
                 }
             }
         }
