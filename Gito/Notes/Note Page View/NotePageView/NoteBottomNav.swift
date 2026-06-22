@@ -45,6 +45,9 @@ struct BottomNav: View {
                 .rotationEffect(.degrees(90))
                 .padding(20)
                 .frame(width: proxy.size.width / 15, height: proxy.size.width / 15)
+                .background(
+                    Circle().fill(Color.white.opacity(0.1))
+                )
                 .onTapGesture {
                     presentMenuSheet.toggle()
                 }

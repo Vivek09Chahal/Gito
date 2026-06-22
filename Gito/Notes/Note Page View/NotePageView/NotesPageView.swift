@@ -134,6 +134,9 @@ struct NotesPageView: View {
             .presentationDetents([.height(200)])
             .presentationBackground(viewModel.editorColorSelected.pageColor)
         }
+        .sheet(isPresented: $vm.presentShareSheet) {
+            ShareSheet(items: vm.shareItems)
+        }
         .photosPicker(isPresented: $vm.presentPhotosPicker, selection: $vm.pickerSelections, maxSelectionCount: 10, matching: .images)
         .onChange(of: vm.pickerSelections) { _, _ in viewModel.loadSelectedPhotos() }
         .fullScreenCover(isPresented: $vm.presentCamera) {

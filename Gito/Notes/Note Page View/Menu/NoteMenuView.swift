@@ -15,7 +15,6 @@ struct NoteMenuView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-
             ForEach(NoteMenuAction.allCases) { item in
                 Button {
                     action(item)
@@ -24,7 +23,6 @@ struct NoteMenuView: View {
                     HStack {
                         Image(systemName: item.icon)
                             .foregroundStyle(item.isDestructive ? .red : .primary)
-
                         Text(item.rawValue)
                             .foregroundStyle(item.isDestructive ? .red : .primary)
                     }

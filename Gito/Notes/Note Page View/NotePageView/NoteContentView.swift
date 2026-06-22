@@ -29,10 +29,6 @@ struct NoteContentView: View {
                                     index: index,
                                     imageItems: $imageItems
                                 )
-                            } else {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(width: 160, height: 160)
                             }
                         }
                     }

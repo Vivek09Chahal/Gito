@@ -46,6 +46,9 @@ final class AppNavigationViewModel {
     // ====== RESTORED SHORTCUTS INTENT ROUTER STATE ======
     var editorInitialAction: NoteInitialAction = .none
 
+    var presentShareSheet: Bool = false
+    var shareItems: [Any] = []
+
     // MARK: - Initializer
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -162,6 +165,9 @@ final class AppNavigationViewModel {
             UIPasteboard.general.string = "\(editorTitle)\n\n\(editorContext)"
             presentMenuSheet = false
         case .send:
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.presentShare()
+            }
             presentMenuSheet = false
         }
     }
@@ -229,5 +235,48 @@ final class AppNavigationViewModel {
         case .none: break
         }
         editorInitialAction = .none
+    }
+
+    // MARK: - Share
+    private func buildShareItems() -> [Any] {
+        var items: [Any] = []
+
+        let text = "\(editorTitle)\n\n\(editorContext)".trimmingCharacters(in: .whitespacesAndNewlines)
+        if !text.isEmpty {
+            items.append(text)
+        }
+
+        for imageItem in editorImageItems {
+            if let image = UIImage(data: imageItem.jpegData) {
+                items.append(image)
+            }
+        }
+
+        for drawingItem in editorDrawingItems {
+            guard let drawing = try? PKDrawing(data: drawingItem.rawDrawingData) else { continue }
+            let bounds = drawing.bounds.isEmpty
+                ? CGRect(x: 0, y: 0, width: 350, height: 350)
+                : drawing.bounds.insetBy(dx: -10, dy: -10)
+            items.append(renderedDrawingImage(from: drawing, bounds: bounds))
+        }
+
+        return items
+    }
+
+    func presentShare() {
+        let items = buildShareItems()
+        guard !items.isEmpty else { return }
+        shareItems = items
+        presentShareSheet = true
+    }
+
+    private func renderedDrawingImage(from drawing: PKDrawing, bounds: CGRect, backgroundColor: UIColor = .black) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: bounds.size)
+        return renderer.image { _ in
+            backgroundColor.setFill()
+            UIRectFill(CGRect(origin: .zero, size: bounds.size))
+            drawing.image(from: bounds, scale: UIScreen.main.scale)
+                .draw(in: CGRect(origin: .zero, size: bounds.size))
+        }
     }
 }
