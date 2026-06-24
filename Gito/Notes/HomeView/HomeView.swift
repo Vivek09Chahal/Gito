@@ -128,8 +128,6 @@ struct HomeView: View {
                 .frame(width: 42, height: 42)
                 .contentShape(Circle())
         }
-        .buttonStyle(.glassProminent)
-        .tint(Color.default)
     }
 
     @ViewBuilder

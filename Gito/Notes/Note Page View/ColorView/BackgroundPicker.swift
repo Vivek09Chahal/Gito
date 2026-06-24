@@ -50,6 +50,7 @@ struct BackgroundPickerWidget: View {
                 }
                 .padding(.vertical, 7)
             }
+            .padding(.leading, 3)
         }
     }
 }

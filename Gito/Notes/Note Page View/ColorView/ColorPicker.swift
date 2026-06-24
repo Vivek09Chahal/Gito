@@ -30,6 +30,7 @@ struct ColorPickerWidget: View {
                 }
                 .padding(.vertical, 7)
             }
+            .padding(.leading, 3)
         }
     }
 }
