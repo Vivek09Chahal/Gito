@@ -101,17 +101,10 @@ enum NoteImageType: Codable {
 }
 
 struct NoteImageItem: Codable, Equatable {
-    var id: UUID
+    var id = UUID()
     var jpegData: Data
     var rawDrawingData: Data?
     var type: NoteImageType
-
-    init(id: UUID = UUID(), jpegData: Data, rawDrawingData: Data? = nil, type: NoteImageType) {
-        self.id = id
-        self.jpegData = jpegData
-        self.rawDrawingData = rawDrawingData
-        self.type = type
-    }
 }
 
 struct DrawingEditTarget: Identifiable {

@@ -9,9 +9,10 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct GitoWidgetsBundle: WidgetBundle {
+struct GitoWidgetBundle: WidgetBundle {
     var body: some Widget {
-        NotesListWidget()
-        SingleNoteWidget()
+        GitoWidget()
+        GitoWidgetControl()
+        GitoWidgetLiveActivity()
     }
 }

@@ -6,41 +6,7 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		0C92CDF82FECDB6D0077E9CD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C92CDF72FECDB6D0077E9CD /* WidgetKit.framework */; };
-		0C92CDFA2FECDB6D0077E9CD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C92CDF92FECDB6D0077E9CD /* SwiftUI.framework */; };
-		0C92CE0B2FECDB6E0077E9CD /* GitoWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0C92CDF52FECDB6D0077E9CD /* GitoWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		0C92CE092FECDB6E0077E9CD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0CC55A1F2FD9A7FB0056EFEC /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 0C92CDF42FECDB6D0077E9CD;
-			remoteInfo = GitoWidgetExtension;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		0C92CE102FECDB6E0077E9CD /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				0C92CE0B2FECDB6E0077E9CD /* GitoWidgetExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		0C92CDF52FECDB6D0077E9CD /* GitoWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = GitoWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C92CDF72FECDB6D0077E9CD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		0C92CDF92FECDB6D0077E9CD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		0C92CE142FED45270077E9CD /* GitoWidgetExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GitoWidgetExtensionRelease.entitlements; sourceTree = "<group>"; };
 		0CC55A272FD9A7FB0056EFEC /* Gito.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gito.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -52,24 +18,9 @@
 			);
 			target = 0CC55A262FD9A7FB0056EFEC /* Gito */;
 		};
-		0C92CE0F2FECDB6E0077E9CD /* Exceptions for "GitoWidget" folder in "GitoWidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 0C92CDF42FECDB6D0077E9CD /* GitoWidgetExtension */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0C92CDFB2FECDB6D0077E9CD /* GitoWidget */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				0C92CE0F2FECDB6E0077E9CD /* Exceptions for "GitoWidget" folder in "GitoWidgetExtension" target */,
-			);
-			path = GitoWidget;
-			sourceTree = "<group>";
-		};
 		0CC55A292FD9A7FB0056EFEC /* Gito */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -81,15 +32,6 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0C92CDF22FECDB6D0077E9CD /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0C92CDFA2FECDB6D0077E9CD /* SwiftUI.framework in Frameworks */,
-				0C92CDF82FECDB6D0077E9CD /* WidgetKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		0CC55A242FD9A7FB0056EFEC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -100,22 +42,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0C92CDF62FECDB6D0077E9CD /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				0C92CDF72FECDB6D0077E9CD /* WidgetKit.framework */,
-				0C92CDF92FECDB6D0077E9CD /* SwiftUI.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		0CC55A1E2FD9A7FB0056EFEC = {
 			isa = PBXGroup;
 			children = (
-				0C92CE142FED45270077E9CD /* GitoWidgetExtensionRelease.entitlements */,
 				0CC55A292FD9A7FB0056EFEC /* Gito */,
-				0C92CDFB2FECDB6D0077E9CD /* GitoWidget */,
-				0C92CDF62FECDB6D0077E9CD /* Frameworks */,
 				0CC55A282FD9A7FB0056EFEC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -124,7 +54,6 @@
 			isa = PBXGroup;
 			children = (
 				0CC55A272FD9A7FB0056EFEC /* Gito.app */,
-				0C92CDF52FECDB6D0077E9CD /* GitoWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -132,28 +61,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0C92CDF42FECDB6D0077E9CD /* GitoWidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 0C92CE0C2FECDB6E0077E9CD /* Build configuration list for PBXNativeTarget "GitoWidgetExtension" */;
-			buildPhases = (
-				0C92CDF12FECDB6D0077E9CD /* Sources */,
-				0C92CDF22FECDB6D0077E9CD /* Frameworks */,
-				0C92CDF32FECDB6D0077E9CD /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				0C92CDFB2FECDB6D0077E9CD /* GitoWidget */,
-			);
-			name = GitoWidgetExtension;
-			packageProductDependencies = (
-			);
-			productName = GitoWidgetExtension;
-			productReference = 0C92CDF52FECDB6D0077E9CD /* GitoWidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		0CC55A262FD9A7FB0056EFEC /* Gito */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0CC55A342FD9A7FC0056EFEC /* Build configuration list for PBXNativeTarget "Gito" */;
@@ -161,12 +68,10 @@
 				0CC55A232FD9A7FB0056EFEC /* Sources */,
 				0CC55A242FD9A7FB0056EFEC /* Frameworks */,
 				0CC55A252FD9A7FB0056EFEC /* Resources */,
-				0C92CE102FECDB6E0077E9CD /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				0C92CE0A2FECDB6E0077E9CD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				0CC55A292FD9A7FB0056EFEC /* Gito */,
@@ -188,9 +93,6 @@
 				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
-					0C92CDF42FECDB6D0077E9CD = {
-						CreatedOnToolsVersion = 26.5;
-					};
 					0CC55A262FD9A7FB0056EFEC = {
 						CreatedOnToolsVersion = 26.5;
 					};
@@ -211,19 +113,11 @@
 			projectRoot = "";
 			targets = (
 				0CC55A262FD9A7FB0056EFEC /* Gito */,
-				0C92CDF42FECDB6D0077E9CD /* GitoWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		0C92CDF32FECDB6D0077E9CD /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		0CC55A252FD9A7FB0056EFEC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -234,13 +128,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0C92CDF12FECDB6D0077E9CD /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		0CC55A232FD9A7FB0056EFEC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -250,76 +137,7 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		0C92CE0A2FECDB6E0077E9CD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 0C92CDF42FECDB6D0077E9CD /* GitoWidgetExtension */;
-			targetProxy = 0C92CE092FECDB6E0077E9CD /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		0C92CE0D2FECDB6E0077E9CD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X5PUMWNFN8;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = GitoWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = GitoWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.vkc.Gito.GitoWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		0C92CE0E2FECDB6E0077E9CD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = GitoWidgetExtensionRelease.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = X5PUMWNFN8;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = GitoWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = GitoWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.vkc.Gito.GitoWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		0CC55A322FD9A7FC0056EFEC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -489,7 +307,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Gito/GitoRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = X5PUMWNFN8;
@@ -531,15 +348,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0C92CE0C2FECDB6E0077E9CD /* Build configuration list for PBXNativeTarget "GitoWidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				0C92CE0D2FECDB6E0077E9CD /* Debug */,
-				0C92CE0E2FECDB6E0077E9CD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		0CC55A222FD9A7FB0056EFEC /* Build configuration list for PBXProject "Gito" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
