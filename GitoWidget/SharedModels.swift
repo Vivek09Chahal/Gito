@@ -1,13 +1,19 @@
 //
-//  NotesModel.swift
-//  Gito
+//  SharedModels.swift
+//  GitoWidget
 //
-//  Created by Vivek Chahal on 6/13/26.
+//  Mirror of Gito/NotesModel.swift compiled into the GitoWidgetExtension target.
+//  The main app target cannot export types to a widget extension, so we re-declare
+//  all types the widget needs here.
+//
+//  ⚠️  Keep this file in sync with Gito/NotesModel.swift whenever the schema changes.
 //
 
 import Foundation
 import SwiftData
 import SwiftUI
+
+// MARK: - NotesModel
 
 @Model
 final class NotesModel {
@@ -21,11 +27,15 @@ final class NotesModel {
     var lastEdited: Date
     var imageItems: [NoteImageItem]
     var drawingItems: [NoteDrawingItem]
-    
+
     init(id: UUID = .init(),
-         bgImage: bgImage? = nil, noteTitle: String,
-         noteContent: String, isImportant: Bool, notePageColor: pageColors,
-         contentSize: CGFloat, lastEdited: Date = Date.now,
+         bgImage: bgImage? = nil,
+         noteTitle: String,
+         noteContent: String,
+         isImportant: Bool,
+         notePageColor: pageColors,
+         contentSize: CGFloat,
+         lastEdited: Date = Date.now,
          imageItems: [NoteImageItem] = [],
          drawingItems: [NoteDrawingItem] = []) {
         self.id = id
@@ -41,7 +51,8 @@ final class NotesModel {
     }
 }
 
-// Page Color
+// MARK: - Page Colors
+
 enum pageColors: String, Codable, CaseIterable, Hashable {
     case defaultColor
     case coral
@@ -54,30 +65,27 @@ enum pageColors: String, Codable, CaseIterable, Hashable {
 }
 
 extension pageColors {
+    /// Inline color values matching the main app's CardColor asset catalog.
+    /// Using literals here avoids a dependency on the widget's own asset catalog.
     var pageColor: Color {
         switch self {
-        case .defaultColor: return .default
-        case .coral: return .coral
-        case .lemonYellow: return .lemonYellow
-        case .sage: return .sage
-        case .lemonGreen: return .lemonGreen
-        case .cedarBark: return .cedarBark
-        case .rustWood: return .rustWood
-        case .evergreenMoss: return .evergreenMoss
+        case .defaultColor:   return Color(red: 0.18, green: 0.18, blue: 0.20)   // dark neutral
+        case .coral:          return Color(red: 0.91, green: 0.44, blue: 0.37)   // coral
+        case .lemonYellow:    return Color(red: 0.98, green: 0.89, blue: 0.36)   // lemon yellow
+        case .sage:           return Color(red: 0.53, green: 0.66, blue: 0.53)   // sage green
+        case .lemonGreen:     return Color(red: 0.67, green: 0.84, blue: 0.29)   // lemon green
+        case .cedarBark:      return Color(red: 0.49, green: 0.30, blue: 0.20)   // cedar bark
+        case .rustWood:       return Color(red: 0.72, green: 0.37, blue: 0.20)   // rust wood
+        case .evergreenMoss:  return Color(red: 0.20, green: 0.35, blue: 0.25)   // evergreen moss
         }
     }
 }
 
-// Background images
+// MARK: - Background Images
+
 enum bgImage: String, Codable, CaseIterable, Hashable {
-    case image1
-    case image2
-    case image3
-    case image4
-    case image5
-    case image6
-    case image7
-    case image8
+    case image1, image2, image3, image4
+    case image5, image6, image7, image8
 }
 
 extension bgImage {
@@ -94,6 +102,8 @@ extension bgImage {
         }
     }
 }
+
+// MARK: - Image / Drawing Item Types
 
 enum NoteImageType: Codable {
     case photo
@@ -112,11 +122,6 @@ struct NoteImageItem: Codable, Equatable {
         self.rawDrawingData = rawDrawingData
         self.type = type
     }
-}
-
-struct DrawingEditTarget: Identifiable {
-    let id = UUID()
-    let index: Int
 }
 
 struct NoteDrawingItem: Codable, Equatable, Identifiable {

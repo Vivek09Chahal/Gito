@@ -7,82 +7,106 @@
 
 import WidgetKit
 import SwiftUI
+import SwiftData
 
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
+struct ListProvider: TimelineProvider {
+    typealias Entry = ListEntry
+
+    func placeholder(in context: Context) -> ListEntry {
+        ListEntry(date: Date(), notes: [
+            NotesModel(noteTitle: "Meeting Notes", noteContent: "Discuss architecture changes", isImportant: true, notePageColor: .defaultColor, contentSize: 14),
+            NotesModel(noteTitle: "Groceries", noteContent: "Milk, Eggs, Coffee beans", isImportant: false, notePageColor: .sage, contentSize: 14)
+        ])
     }
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
+    @MainActor
+    func getSnapshot(in context: Context, completion: @escaping (ListEntry) -> Void) {
+        let entries = fetchRecentNotes()
+        let entry = ListEntry(date: Date(), notes: entries)
+        completion(entry)
     }
 
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
+    @MainActor
+    func getTimeline(in context: Context, completion: @escaping (Timeline<ListEntry>) -> Void) {
+        let entries = fetchRecentNotes()
+        let entry = ListEntry(date: Date(), notes: entries)
+
+        // Refresh every 15 minutes
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+        completion(timeline)
+    }
+
+    @MainActor
+    private func fetchRecentNotes() -> [NotesModel] {
+        let context = SharedContainer.sharedContext
+        let descriptor = FetchDescriptor<NotesModel>(sortBy: [SortDescriptor(\.lastEdited, order: .reverse)])
+        return (try? context.fetch(descriptor)) ?? []
+    }
 }
 
-struct SimpleEntry: TimelineEntry {
+struct ListEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationAppIntent
+    let notes: [NotesModel]
 }
 
-struct GitoWidgetEntryView : View {
-    var entry: Provider.Entry
+struct NotesListWidgetView: View {
+    var entry: ListProvider.Entry
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Recent Notes")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundStyle(.secondary)
+                .tracking(1.0)
 
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
+            if entry.notes.isEmpty {
+                Text("No notes found.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxHeight: .infinity)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(entry.notes.prefix(3), id: \.id) { note in
+                        Link(destination: URL(string: "gito://note?id=\(note.id.uuidString)")!) {
+                            HStack {
+                                Circle()
+                                    .fill(note.notePageColor.pageColor)
+                                    .frame(width: 8, height: 8)
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(note.noteTitle.isEmpty ? "Untitled" : note.noteTitle)
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .lineLimit(1)
+                                    Text(note.noteContent)
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                }
+                            }
+                        }
+                        if note.id != entry.notes.prefix(3).last?.id {
+                            Divider()
+                        }
+                    }
+                }
+            }
+            Spacer()
         }
+        .containerBackground(.fill.tertiary, for: .widget)
     }
 }
 
-struct GitoWidget: Widget {
-    let kind: String = "GitoWidget"
+struct NotesListWidget: Widget {
+    let kind: String = "NotesListWidget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
-            GitoWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+        StaticConfiguration(kind: kind, provider: ListProvider()) { entry in
+            NotesListWidgetView(entry: entry)
         }
+        .configurationDisplayName("Recent Notes")
+        .description("Keep track of your latest snippets and pinned contents.")
+        .supportedFamilies([.systemMedium, .systemLarge])
     }
-}
-
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
-}
-
-#Preview(as: .systemSmall) {
-    GitoWidget()
-} timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
 }

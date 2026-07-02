@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftData
 import PencilKit
 import PhotosUI
+import WidgetKit
 
 @Observable
 final class AppNavigationViewModel {
@@ -111,6 +112,7 @@ final class AppNavigationViewModel {
         }
 
         try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - Home Actions
@@ -149,6 +151,7 @@ final class AppNavigationViewModel {
             modelContext.delete(note)
             try? modelContext.save()
         }
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - Editor Actions

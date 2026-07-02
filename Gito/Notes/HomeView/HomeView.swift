@@ -113,6 +113,32 @@ struct HomeView: View {
                 }
             }
         }
+        // Add this modifier to the NavigationStack or root ZStack inside HomeView body:
+        .onOpenURL { url in
+            // Ensure the incoming URL matches our expected widget scheme format
+            guard url.scheme == "gito", url.host == "note" else { return }
+
+            // Parse the 'id' query parameter out of the URL string
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+                  let queryItems = components.queryItems,
+                  let idString = queryItems.first(where: { $0.name == "id" })?.value,
+                  let noteUUID = UUID(uuidString: idString) else { return }
+
+            // Fetch the note object matching this UUID from the database
+            let fetchDescriptor = FetchDescriptor<NotesModel>(
+                predicate: #Predicate<NotesModel> { $0.id == noteUUID }
+            )
+
+            if let matchingNotes = try? modelContext.fetch(fetchDescriptor),
+               let targetNote = matchingNotes.first {
+
+                // 1. Pre-load fields into your AppNavigationViewModel active layout fields
+                appViewModel.loadActiveNote(targetNote)
+
+                // 2. Set the routing intent property to automatically trigger your navigationDestination
+                appViewModel.activeNoteIntent = ActiveNoteIntent(note: targetNote, action: .none)
+            }
+        }
     }
 
     // MARK: - Local Toolbar Helpers
