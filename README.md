@@ -2,6 +2,10 @@
 
 A powerful, aesthetically pleasing note-taking iOS application built with SwiftUI and SwiftData.
 
+
+https://github.com/user-attachments/assets/b70e5d03-a055-4a16-81e4-3886cffb548d
+
+
 ## ✨ Features
 
 - **Rich Notes:** Keep track of your ideas, thoughts, and tasks with an intuitive interface.
