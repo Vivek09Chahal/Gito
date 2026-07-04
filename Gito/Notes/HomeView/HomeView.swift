@@ -79,6 +79,9 @@ struct HomeView: View {
                         }
                     }
                 }
+                .onOpenURL { url in
+                    appViewModel.handleDeepLink(url)
+                }
                 .navigationTitle("My Notes")
                 .searchable(
                     text: $vm.searchText,

@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftData
 import PencilKit
 import PhotosUI
+import WidgetKit
 
 @Observable
 final class AppNavigationViewModel {
@@ -111,6 +112,7 @@ final class AppNavigationViewModel {
         }
 
         try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - Home Actions
@@ -148,6 +150,7 @@ final class AppNavigationViewModel {
         withAnimation {
             modelContext.delete(note)
             try? modelContext.save()
+            WidgetCenter.shared.reloadAllTimelines()
         }
     }
 
@@ -277,6 +280,27 @@ final class AppNavigationViewModel {
             UIRectFill(CGRect(origin: .zero, size: bounds.size))
             drawing.image(from: bounds, scale: UIScreen.main.scale)
                 .draw(in: CGRect(origin: .zero, size: bounds.size))
+        }
+    }
+
+    func handleDeepLink(_ url: URL) {
+        guard url.scheme == "gito", url.host == "note" else { return }
+
+        // Parse out URL Query Parameters
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+              let queryItems = components.queryItems,
+              let idString = queryItems.first(where: { $0.name == "id" })?.value,
+              let targetUUID = UUID(uuidString: idString) else { return }
+
+        // Fetch directly using a Predicate filter on the target context
+        let descriptor = FetchDescriptor<NotesModel>(
+            predicate: #Predicate<NotesModel> { $0.id == targetUUID }
+        )
+
+        if let matchedNotes = try? modelContext.fetch(descriptor), let matchedNote = matchedNotes.first {
+            // Load properties and open view flow layout cleanly
+            loadActiveNote(matchedNote)
+            activeNoteIntent = ActiveNoteIntent(note: matchedNote, action: .none)
         }
     }
 }

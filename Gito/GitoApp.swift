@@ -10,19 +10,9 @@ import SwiftData
 
 @main
 struct GitoApp: App {
-    var container: ModelContainer = {
-        let schema = Schema([
-            NotesModel.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-    
+    // Use the shared instance
+    var container = SharedModelContainer.container
+
     var body: some Scene {
         WindowGroup {
             EntryScreenView()
