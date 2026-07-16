@@ -50,13 +50,9 @@ struct HomeView: View {
                 ZStack {
                     Color(uiColor: .systemBackground)
 
-                    // Content List Layout
                     if isListEmpty {
-                        VStack {
-                            Spacer()
-                            EmptyStateView()
-                            Spacer()
-                        }
+                        EmptyStateView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         ScrollView(showsIndicators: false) {
                             LazyVStack(alignment: .leading, spacing: 0) {
@@ -90,13 +86,10 @@ struct HomeView: View {
                 )
                 .toolbar {
                     ToolbarItemGroup(placement: .bottomBar) {
-                        HStack(spacing: 6) {
-                            nativeShortcutButton(icon: "checkmark.square", action: .newTextNote)
-                            nativeShortcutButton(icon: "pencil.tip", action: .newDrawingNote)
-                            nativeShortcutButton(icon: "mic", action: .newVoiceNote)
-                            nativeShortcutButton(icon: "photo", action: .newImageNote)
-                        }
-                        .padding(3)
+                        nativeShortcutButton(icon: "checkmark.square", action: .newTextNote)
+                        nativeShortcutButton(icon: "pencil.tip", action: .newDrawingNote)
+                        nativeShortcutButton(icon: "mic", action: .newVoiceNote)
+                        nativeShortcutButton(icon: "photo", action: .newImageNote)
                     }
 
                     ToolbarSpacer(.flexible, placement: .bottomBar)
@@ -105,9 +98,9 @@ struct HomeView: View {
                         Button {
                             appViewModel.handleBottomNavAction(.newTextNote)
                         } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundStyle(.white)
+                            Image(systemName: "square.and.pencil")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -126,10 +119,8 @@ struct HomeView: View {
             appViewModel.handleBottomNavAction(action)
         } label: {
             Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundStyle(.white.opacity(0.65))
-                .frame(width: 42, height: 42)
-                .contentShape(Circle())
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(.primary)
         }
     }
 
@@ -139,10 +130,10 @@ struct HomeView: View {
             .font(.caption)
             .fontWeight(.semibold)
             .foregroundStyle(.secondary)
-            .tracking(1.5)
+            .tracking(2)
             .padding(.horizontal, 16)
-            .padding(.top, 14)
-            .padding(.bottom, 8)
+            .padding(.top, 16)
+            .padding(.bottom, 6)
     }
 }
 

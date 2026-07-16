@@ -22,13 +22,13 @@ struct NoteCardView: View {
                     .lineLimit(5)
                     .padding(.vertical)
             } else {
-                Text("No TITLE")
+                Text("Untitled")
                     .font(.callout)
                     .fontWeight(.semibold)
                     .fontDesign(.rounded)
-                    .lineLimit(5)
+                    .foregroundStyle(.tertiary)
+                    .italic()
                     .padding(.vertical)
-
             }
 
             if !note.noteContent.isEmpty {
@@ -55,8 +55,9 @@ struct NoteCardView: View {
                             if let uiImage = UIImage(data: item.jpegData) {
                                 Image(uiImage: uiImage)
                                     .resizable()
-                                    .scaledToFit()
+                                    .scaledToFill()
                                     .frame(width: 25, height: 35)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
                     }
@@ -67,7 +68,9 @@ struct NoteCardView: View {
                         if let pkDrawing = try? PKDrawing(data: item.rawDrawingData) {
                             DrawingInlineRenderView(drawing: pkDrawing)
                                 .frame(width: 25, height: 35)
+                                .scaledToFill()
                                 .background(Color.black)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                     }
                 }
