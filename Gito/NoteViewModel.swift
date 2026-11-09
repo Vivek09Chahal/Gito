@@ -274,11 +274,18 @@ final class AppNavigationViewModel {
     }
 
     private func renderedDrawingImage(from drawing: PKDrawing, bounds: CGRect, backgroundColor: UIColor = .black) -> UIImage {
+        let scale: CGFloat
+        if let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first {
+            scale = windowScene.screen.scale
+        } else {
+            scale = 1.0
+        }
+
         let renderer = UIGraphicsImageRenderer(size: bounds.size)
         return renderer.image { _ in
             backgroundColor.setFill()
             UIRectFill(CGRect(origin: .zero, size: bounds.size))
-            drawing.image(from: bounds, scale: UIScreen.main.scale)
+            drawing.image(from: bounds, scale: scale)
                 .draw(in: CGRect(origin: .zero, size: bounds.size))
         }
     }
